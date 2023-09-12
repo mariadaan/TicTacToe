@@ -13,15 +13,34 @@ class Board(object):
         print()
 
     def make_move(self, symbol = str, pos = str):
-        for i in range(3):
-            for j in range(3):
-                if self.board[i][j] == pos:
-                    self.board[i][j] = symbol
+        for row in range(3):
+            for col in range(3):
+                if self.board[row][col] == pos:
+                    self.board[row][col] = symbol
                     return
         raise Exception("Input must be an unused position on the board!")
 
-    def has_winner(self):
+    def has_won(self, symbol = str):
+        for row in self.board:
+            if row[0] == row[1] == row[2] == symbol:
+                return True
+
+        for col in range(3):
+            if self.board[0][col] == self.board[1][col] == self.board[2][col] == symbol:
+                return True
+
+        if (self.board[0][0] == self.board[1][1] == self.board[2][2] == symbol or
+            self.board[0][2] == self.board[1][1] == self.board[2][0] == symbol):
+            return True
+
         return False
+    
+    def is_full(self):
+        for row in range(3):
+            for col in range(3):
+                if not (self.board[row][col] == 'O' or self.board[row][col] == 'X'):
+                    return False
+        return True
 
     def __str__(self):
         pass
@@ -37,16 +56,20 @@ class Game(object):
               "The rules are simple: the player who has 3 in a row first, wins.\n"
               "The first player may now choose a position from 1 to 9 to make their first move.")
 
+        board.print_board()
         symbol = 'X'
-        while (self.finished == False):
-            board.print_board()
+        while (board.has_won(symbol) == False):
             pos = input(f"{symbol} pick a position: ")
             try:
                 board.make_move(symbol, pos)
-                symbol = 'O' if symbol == 'X' else 'X'
-                if (board.has_winner()):
+                board.print_board()
+                if (board.has_won(symbol)):
                     print(f"Player {symbol} has won!")
                     return
+                if (board.is_full()):
+                    print("It's a tie! Try again.")
+                    return
+                symbol = 'O' if symbol == 'X' else 'X'
             except Exception as e:
                 print(e)
                 pos = input("Position: ")
